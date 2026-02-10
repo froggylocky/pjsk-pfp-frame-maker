@@ -1,42 +1,42 @@
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Upload, Download, ZoomIn, ZoomOut, Move, RotateCw, Info, Loader2, Settings2, SlidersHorizontal, Youtube, ExternalLink, X, Check, Unlock, Lock, Scissors, Palette } from 'lucide-react';
+import { Upload, Download, ZoomIn, ZoomOut, Move, RotateCw, Info, Loader2, Settings2, SlidersHorizontal, Youtube, ExternalLink, X, Check, Unlock, Lock, Scissors, Palette, Link as LinkIcon } from 'lucide-react';
 
 const FRAMES = [
-  { id: 'none', name: 'None', url: '' },
-  { id: 'ichika', name: 'Ichika Fan', url: 'https://u.cubeupload.com/froglock/frameunite011ichika.png' },
-  { id: 'saki', name: 'Saki Fan', url: 'https://u.cubeupload.com/froglock/frameunite012saki.png' },
-  { id: 'honami', name: 'Honami Fan', url: 'https://u.cubeupload.com/froglock/frameunite013honami.png' },
-  { id: 'shiho', name: 'Shiho Fan', url: 'https://u.cubeupload.com/froglock/frameunite014shiho.png' },
-  { id: 'leo_sticks', name: 'Leo/need Fan', url: 'https://u.cubeupload.com/froglock/frameunite01cheer.png' },
-  { id: 'minori', name: 'Minori Fan', url: 'https://u.cubeupload.com/froglock/frameunite021minori.png' },
-  { id: 'haruka', name: 'Haruka Fan', url: 'https://u.cubeupload.com/froglock/frameunite022haruka.png' },
-  { id: 'airi', name: 'Airi Fan', url: 'https://u.cubeupload.com/froglock/frameunite023airi.png' },
-  { id: 'shizuku', name: 'Shizuku Fan', url: 'https://u.cubeupload.com/froglock/frameunite024shizuku.png' },
-  { id: 'mmj_sticks', name: 'MMJ! Fan', url: 'https://u.cubeupload.com/froglock/frameunite02cheer.png' },
-  { id: 'kohane', name: 'Kohane Fan', url: 'https://u.cubeupload.com/froglock/frameunite031kohane.png' },
-  { id: 'an', name: 'An Fan', url: 'https://u.cubeupload.com/froglock/frameunite032an.png' },
-  { id: 'akito', name: 'Akito Fan', url: 'https://u.cubeupload.com/froglock/frameunite033akito.png' },
-  { id: 'toya', name: 'Toya Fan', url: 'https://u.cubeupload.com/froglock/frameunite034toya.png' },
-  { id: 'vbs_sticks', name: 'VBS Fan', url: 'https://u.cubeupload.com/froglock/frameunite03cheer.png' },
-  { id: 'tsukasa', name: 'Tsukasa Fan', url: 'https://u.cubeupload.com/froglock/frameunite041tsukasa.png' },
-  { id: 'emu', name: 'Emu Fan', url: 'https://u.cubeupload.com/froglock/frameunite042emu.png' },
-  { id: 'nene', name: 'Nene Fan', url: 'https://u.cubeupload.com/froglock/frameunite043nene.png' },
-  { id: 'rui', name: 'Rui Fan', url: 'https://u.cubeupload.com/froglock/frameunite044rui.png' },
-  { id: 'wxs_sticks', name: 'WxS Fan', url: 'https://u.cubeupload.com/froglock/frameunite04cheer.png' },
-  { id: 'kanade', name: 'Kanade Fan', url: 'https://u.cubeupload.com/froglock/frameunite051kanade.png' },
-  { id: 'mafuyu', name: 'Mafuyu Fan', url: 'https://u.cubeupload.com/froglock/frameunite052mafuyu.png' },
-  { id: 'ena', name: 'Ena Fan', url: 'https://u.cubeupload.com/froglock/frameunite053ena.png' },
-  { id: 'mizuki', name: 'Mizuki Fan', url: 'https://u.cubeupload.com/froglock/frameunite054mizuki.png' },
-  { id: 'n25_sticks', name: 'N25 Fan', url: 'https://u.cubeupload.com/froglock/frameunite05cheer.png' },
-  { id: 'miku', name: 'Miku Fan', url: 'https://u.cubeupload.com/froglock/framevirtualsinger1m.png' },
-  { id: 'rin', name: 'Rin Fan', url: 'https://u.cubeupload.com/froglock/framevirtualsinger2r.png' },
-  { id: 'len', name: 'Len Fan', url: 'https://u.cubeupload.com/froglock/framevirtualsinger3l.png' },
-  { id: 'luka', name: 'Luka Fan', url: 'https://u.cubeupload.com/froglock/framevirtualsinger4l.png' },
-  { id: 'meiko', name: 'Meiko Fan', url: 'https://u.cubeupload.com/froglock/framevirtualsinger5m.png' },
-  { id: 'kaito', name: 'Kaito Fan', url: 'https://u.cubeupload.com/froglock/framevirtualsinger6k.png' },
-  { id: 'vs_sticks', name: 'VS Fan', url: 'https://u.cubeupload.com/froglock/framevirtualsingerch.png' }
+  { id: 'none', name: 'None', url: '', unit: 'None' },
+  { id: 'ichika', name: 'Ichika Fan', url: 'https://u.cubeupload.com/froglock/frameunite011ichika.png', unit: 'Leo/need' },
+  { id: 'saki', name: 'Saki Fan', url: 'https://u.cubeupload.com/froglock/frameunite012saki.png', unit: 'Leo/need' },
+  { id: 'honami', name: 'Honami Fan', url: 'https://u.cubeupload.com/froglock/frameunite013honami.png', unit: 'Leo/need' },
+  { id: 'shiho', name: 'Shiho Fan', url: 'https://u.cubeupload.com/froglock/frameunite014shiho.png', unit: 'Leo/need' },
+  { id: 'leo_sticks', name: 'Leo/need Fan', url: 'https://u.cubeupload.com/froglock/frameunite01cheer.png', unit: 'Leo/need' },
+  { id: 'minori', name: 'Minori Fan', url: 'https://u.cubeupload.com/froglock/frameunite021minori.png', unit: 'MORE MORE JUMP!' },
+  { id: 'haruka', name: 'Haruka Fan', url: 'https://u.cubeupload.com/froglock/frameunite022haruka.png', unit: 'MORE MORE JUMP!' },
+  { id: 'airi', name: 'Airi Fan', url: 'https://u.cubeupload.com/froglock/frameunite023airi.png', unit: 'MORE MORE JUMP!' },
+  { id: 'shizuku', name: 'Shizuku Fan', url: 'https://u.cubeupload.com/froglock/frameunite024shizuku.png', unit: 'MORE MORE JUMP!' },
+  { id: 'mmj_sticks', name: 'MMJ! Fan', url: 'https://u.cubeupload.com/froglock/frameunite02cheer.png', unit: 'MORE MORE JUMP!' },
+  { id: 'kohane', name: 'Kohane Fan', url: 'https://u.cubeupload.com/froglock/frameunite031kohane.png', unit: 'Vivid BAD SQUAD' },
+  { id: 'an', name: 'An Fan', url: 'https://u.cubeupload.com/froglock/frameunite032an.png', unit: 'Vivid BAD SQUAD' },
+  { id: 'akito', name: 'Akito Fan', url: 'https://u.cubeupload.com/froglock/frameunite033akito.png', unit: 'Vivid BAD SQUAD' },
+  { id: 'toya', name: 'Toya Fan', url: 'https://u.cubeupload.com/froglock/frameunite034toya.png', unit: 'Vivid BAD SQUAD' },
+  { id: 'vbs_sticks', name: 'VBS Fan', url: 'https://u.cubeupload.com/froglock/frameunite03cheer.png', unit: 'Vivid BAD SQUAD' },
+  { id: 'tsukasa', name: 'Tsukasa Fan', url: 'https://u.cubeupload.com/froglock/frameunite041tsukasa.png', unit: 'Wonderlands x Showtime' },
+  { id: 'emu', name: 'Emu Fan', url: 'https://u.cubeupload.com/froglock/frameunite042emu.png', unit: 'Wonderlands x Showtime' },
+  { id: 'nene', name: 'Nene Fan', url: 'https://u.cubeupload.com/froglock/frameunite043nene.png', unit: 'Wonderlands x Showtime' },
+  { id: 'rui', name: 'Rui Fan', url: 'https://u.cubeupload.com/froglock/frameunite044rui.png', unit: 'Wonderlands x Showtime' },
+  { id: 'wxs_sticks', name: 'WxS Fan', url: 'https://u.cubeupload.com/froglock/frameunite04cheer.png', unit: 'Wonderlands x Showtime' },
+  { id: 'kanade', name: 'Kanade Fan', url: 'https://u.cubeupload.com/froglock/frameunite051kanade.png', unit: 'Nightcord at 25:00' },
+  { id: 'mafuyu', name: 'Mafuyu Fan', url: 'https://u.cubeupload.com/froglock/frameunite052mafuyu.png', unit: 'Nightcord at 25:00' },
+  { id: 'ena', name: 'Ena Fan', url: 'https://u.cubeupload.com/froglock/frameunite053ena.png', unit: 'Nightcord at 25:00' },
+  { id: 'mizuki', name: 'Mizuki Fan', url: 'https://u.cubeupload.com/froglock/frameunite054mizuki.png', unit: 'Nightcord at 25:00' },
+  { id: 'n25_sticks', name: 'N25 Fan', url: 'https://u.cubeupload.com/froglock/frameunite05cheer.png', unit: 'Nightcord at 25:00' },
+  { id: 'miku', name: 'Miku Fan', url: 'https://u.cubeupload.com/froglock/framevirtualsinger1m.png', unit: 'Virtual Singer' },
+  { id: 'rin', name: 'Rin Fan', url: 'https://u.cubeupload.com/froglock/framevirtualsinger2r.png', unit: 'Virtual Singer' },
+  { id: 'len', name: 'Len Fan', url: 'https://u.cubeupload.com/froglock/framevirtualsinger3l.png', unit: 'Virtual Singer' },
+  { id: 'luka', name: 'Luka Fan', url: 'https://u.cubeupload.com/froglock/framevirtualsinger4l.png', unit: 'Virtual Singer' },
+  { id: 'meiko', name: 'Meiko Fan', url: 'https://u.cubeupload.com/froglock/framevirtualsinger5m.png', unit: 'Virtual Singer' },
+  { id: 'kaito', name: 'Kaito Fan', url: 'https://u.cubeupload.com/froglock/framevirtualsinger6k.png', unit: 'Virtual Singer' },
+  { id: 'vs_sticks', name: 'VS Fan', url: 'https://u.cubeupload.com/froglock/framevirtualsingerch.png', unit: 'Virtual Singer' }
 ];
 
 const PRIMARY_PROXY = "https://images.weserv.nl/?url=";
@@ -46,9 +46,110 @@ const CANVAS_SIZE = 400;
 
 const clamp = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max);
 
+const BackgroundAnimation = ({ theme }: { theme: 'rustic' | 'original' }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    let w: number, h: number;
+
+    const triangles: {
+      x: number;
+      y: number;
+      size: number;
+      speed: number;
+      rotation: number;
+      opacity: number;
+      points: { x: number, y: number }[];
+    }[] = [];
+
+    const colors = theme === 'original' 
+      ? ['#008080', '#4db6ac', '#004d4d', '#003333'] 
+      : ['#525D37', '#5A604B', '#45483F', '#61685C'];
+
+    const resize = () => {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    };
+
+    const createTriangle = (isInitial = false) => {
+      const size = Math.random() * 80 + 20;
+      return {
+        x: isInitial ? Math.random() * w : w + size,
+        y: isInitial ? Math.random() * h : h + size,
+        size,
+        speed: Math.random() * 1.5 + 0.5,
+        rotation: Math.random() * Math.PI * 2,
+        opacity: Math.random() * 0.15 + 0.05,
+        points: Array.from({ length: 3 }).map(() => ({
+          x: (Math.random() - 0.5) * 2,
+          y: (Math.random() - 0.5) * 2
+        }))
+      };
+    };
+
+    const init = () => {
+      resize();
+      for (let i = 0; i < 30; i++) {
+        triangles.push(createTriangle(true));
+      }
+    };
+
+    const draw = () => {
+      ctx.clearRect(0, 0, w, h);
+      
+      triangles.forEach((t, i) => {
+        // Move towards top-left
+        t.x -= t.speed;
+        t.y -= t.speed;
+        t.rotation += 0.005;
+
+        // Reset if off screen
+        if (t.x < -t.size || t.y < -t.size) {
+          triangles[i] = createTriangle();
+        }
+
+        ctx.save();
+        ctx.translate(t.x, t.y);
+        ctx.rotate(t.rotation);
+        ctx.beginPath();
+        
+        const color = colors[i % colors.length];
+        ctx.fillStyle = color;
+        ctx.globalAlpha = t.opacity;
+
+        ctx.moveTo(t.points[0].x * t.size, t.points[0].y * t.size);
+        ctx.lineTo(t.points[1].x * t.size, t.points[1].y * t.size);
+        ctx.lineTo(t.points[2].x * t.size, t.points[2].y * t.size);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      });
+
+      animationFrameId = requestAnimationFrame(draw);
+    };
+
+    window.addEventListener('resize', resize);
+    init();
+    draw();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', resize);
+    };
+  }, [theme]);
+
+  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-[-1]" />;
+};
+
 const PJSKFrameMaker = () => {
   const [theme, setTheme] = useState<'rustic' | 'original'>(() => {
-    return (localStorage.getItem('pjsk-theme') as 'rustic' | 'original') || 'rustic';
+    return (localStorage.getItem('pjsk-theme') as 'rustic' | 'original') || 'original';
   });
 
   const [userImage, setUserImage] = useState<HTMLImageElement | null>(null);
@@ -292,10 +393,22 @@ const PJSKFrameMaker = () => {
     }
   };
 
+  // Group frames by unit
+  const groupedFrames = useMemo(() => {
+    const groups: Record<string, typeof FRAMES> = {};
+    FRAMES.forEach(frame => {
+      if (!groups[frame.unit]) groups[frame.unit] = [];
+      groups[frame.unit].push(frame);
+    });
+    return groups;
+  }, []);
+
   const currentLimits = getLimits(zoom);
 
   return (
-    <div className="min-h-screen flex flex-col items-center py-12 px-4 select-none">
+    <div className="min-h-screen flex flex-col items-center py-12 px-4 select-none relative overflow-hidden">
+      <BackgroundAnimation theme={theme} />
+      
       {/* Theme Switcher */}
       <div className="fixed top-4 right-4 z-50">
         <button 
@@ -307,12 +420,12 @@ const PJSKFrameMaker = () => {
         </button>
       </div>
 
-      <div className="text-center mb-10 rustic-container px-12 py-6 rounded-sm">
+      <div className="text-center mb-10 rustic-container px-12 py-6 rounded-sm relative z-10">
         <h1 className="text-4xl font-bold mb-2">PJSK Frame Maker</h1>
         <p className="text-lg opacity-80">Profile Picture Creator (400x400)</p>
       </div>
 
-      <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+      <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-12 items-start relative z-10">
         <div className="lg:col-span-3 space-y-8 order-2 lg:order-1">
           <section className="rustic-container p-6 space-y-4">
             <h2 className="text-xl font-bold border-b border-[var(--border-main)] pb-2">1. Upload Image</h2>
@@ -439,9 +552,9 @@ const PJSKFrameMaker = () => {
         </div>
 
         <div className="lg:col-span-6 flex flex-col items-center order-1 lg:order-2">
-          <div className={`mb-4 rustic-glass px-4 py-2 flex items-center gap-2 text-xs font-bold animate-pulse rounded-full shadow-lg ${freeMode ? 'bg-[var(--accent)]/30 border-[var(--bg-button-hover)]' : ''}`}>
+          <div className={`mb-4 rustic-glass px-4 py-2 flex items-center gap-2 text-xs font-bold rounded-full shadow-lg transition-colors ${freeMode ? 'bg-yellow-400/20 border-yellow-400/50 text-yellow-100 shadow-yellow-400/20' : (theme === 'rustic' ? 'bg-[var(--accent)]/30 border-[var(--bg-button-hover)]' : '')}`}>
              <Info className="w-4 h-4" />
-             <span>Drag to move • Scroll to resize • {freeMode ? 'Free Movement Active' : 'Boundary enforced'}</span>
+             <span>Drag to move • Scroll to resize • {freeMode ? 'Free Mode' : 'Boundary Mode'}</span>
           </div>
 
           <div 
@@ -475,19 +588,28 @@ const PJSKFrameMaker = () => {
         <div className="lg:col-span-3 space-y-4 order-3">
           <div className="rustic-container p-6 h-[75vh] flex flex-col">
             <h2 className="text-xl font-bold border-b border-[var(--border-main)] pb-2 mb-2">3. Select Frame</h2>
-            <div className="grid grid-cols-1 gap-4 overflow-y-auto pr-3 flex-1">
-              {FRAMES.map((frame) => (
-                <button 
-                  key={frame.id} 
-                  onClick={() => !isFrameLoading && setSelectedFrame(frame)} 
-                  disabled={isFrameLoading} 
-                  className={`flex items-center gap-4 p-3 border-4 transition-all ${selectedFrame.id === frame.id ? 'border-[var(--accent)] bg-[var(--accent)]/30' : 'border-transparent hover:bg-[var(--accent)]/10'} ${isFrameLoading ? 'opacity-50' : ''}`}
-                >
-                  <div className="w-14 h-14 bg-white/10 flex-shrink-0 border border-[var(--border-main)] p-1 flex items-center justify-center overflow-hidden">
-                    {frame.url ? <img src={frame.url} alt={frame.name} className="w-full h-full object-contain" /> : <span className="text-[10px] opacity-40">None</span>}
+            <div className="overflow-y-auto pr-3 flex-1 space-y-6">
+              {Object.entries(groupedFrames).map(([unitName, frames]) => (
+                <div key={unitName} className="space-y-3">
+                  <div className="sticky top-0 z-10 bg-[var(--bg-container)] border-b-2 border-[var(--border-main)] py-1 mb-2">
+                    <h3 className="text-[10px] font-bold uppercase tracking-wider opacity-60">{unitName}</h3>
                   </div>
-                  <span className="font-bold text-sm text-left leading-none">{frame.name}</span>
-                </button>
+                  <div className="grid grid-cols-1 gap-3">
+                    {frames.map((frame) => (
+                      <button 
+                        key={frame.id} 
+                        onClick={() => !isFrameLoading && setSelectedFrame(frame)} 
+                        disabled={isFrameLoading} 
+                        className={`flex items-center gap-4 p-2 border-4 transition-all ${selectedFrame.id === frame.id ? 'border-[var(--accent)] bg-[var(--accent)]/30' : 'border-transparent hover:bg-[var(--accent)]/10'} ${isFrameLoading ? 'opacity-50' : ''}`}
+                      >
+                        <div className="w-12 h-12 bg-white/10 flex-shrink-0 border border-[var(--border-main)] p-1 flex items-center justify-center overflow-hidden">
+                          {frame.url ? <img src={frame.url} alt={frame.name} className="w-full h-full object-contain" /> : <span className="text-[10px] opacity-40">None</span>}
+                        </div>
+                        <span className="font-bold text-xs text-left leading-tight">{frame.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           </div>
@@ -553,10 +675,10 @@ const PJSKFrameMaker = () => {
         </div>
       )}
 
-      <footer className="mt-16 mb-12 flex flex-col items-center gap-6">
+      <footer className="mt-16 mb-12 flex flex-col items-center gap-6 relative z-10">
         <div className="rustic-container px-8 py-4 rounded-sm flex items-center gap-4 hover:scale-105 transition-transform group">
-          <Youtube className="w-6 h-6 group-hover:text-red-600 transition-colors" />
-          <a href="https://www.youtube.com/@Fro-g-lock" target="_blank" rel="noopener noreferrer" className="text-lg font-bold hover:underline">my youtube channel</a>
+          <LinkIcon className="w-6 h-6 group-hover:text-[var(--accent)] transition-colors" />
+          <a href="https://linktr.ee/froggolock" target="_blank" rel="noopener noreferrer" className="text-lg font-bold hover:underline">my links</a>
         </div>
         <div className="flex flex-col items-center gap-2 opacity-60 hover:opacity-100 transition-opacity">
           <div className="text-[10px] font-bold uppercase tracking-widest text-center">Original images from:</div>
@@ -566,8 +688,11 @@ const PJSKFrameMaker = () => {
 
       <div className="fixed bottom-2 right-2 z-[100] pointer-events-none drop-shadow-2xl">
         <img 
-          src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExcmVxdTlmc21mbXhpczhkMGNqYWlscWlodDF5Z2tnaDhxYzJlb2gweiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/hlYdK9prwebyiiNAxV/giphy.gif" 
-          alt="Dancing PJSK Character"
+          src={theme === 'rustic' 
+            ? "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExaTM0d2l4ZHd3Y29qbGc2eG9haHJ4NGYyODkycHR1aTI0ZG9nNHNmNCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/NuEDbNMHnCCaj08amo/giphy.gif"
+            : "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExaHBuZ3d0aGVvYjJzbmp3cm53anN2MHZicHN0bmcweXUxNTZ2Ym1yYiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Hz0bSgnAydGFvzDewo/giphy.gif"
+          } 
+          alt="Dancing Character"
           className="w-24 md:w-32 h-auto opacity-90 transition-opacity"
         />
       </div>
