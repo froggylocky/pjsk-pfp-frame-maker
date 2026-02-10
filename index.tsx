@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Upload, Download, ZoomIn, ZoomOut, Move, RotateCw, Info, Loader2, Settings2, SlidersHorizontal, Youtube } from 'lucide-react';
+import { Upload, Download, ZoomIn, ZoomOut, Move, RotateCw, Info, Loader2, Settings2, SlidersHorizontal, Youtube, ExternalLink } from 'lucide-react';
 
 const FRAMES = [
   { id: 'none', name: 'None', url: '' },
@@ -113,6 +113,15 @@ const PJSKFrameMaker = () => {
     drawCanvas();
   }, [userImage, frameImage, zoom, offset, rotation]);
 
+  // Redraw when fonts are loaded to ensure Silkscreen placeholder is correctly rendered
+  useEffect(() => {
+    if ('fonts' in document) {
+      document.fonts.ready.then(() => {
+        drawCanvas();
+      });
+    }
+  }, []);
+
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -185,8 +194,10 @@ const PJSKFrameMaker = () => {
       ctx.arc(CANVAS_SIZE / 2, CANVAS_SIZE / 2, INNER_RADIUS, 0, Math.PI * 2);
       ctx.fill();
       ctx.fillStyle = '#002b2b';
-      ctx.font = '16px Silkscreen';
+      // Explicitly ensuring Silkscreen is used and forcing a redraw helps if font loads late
+      ctx.font = '700 16px Silkscreen, cursive';
       ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
       ctx.fillText('Upload Photo', CANVAS_SIZE / 2, CANVAS_SIZE / 2);
     }
 
@@ -514,16 +525,33 @@ const PJSKFrameMaker = () => {
       </div>
 
       {/* Footer Link */}
-      <footer className="mt-16 mb-8 rustic-container px-8 py-4 rounded-sm flex items-center gap-4 hover:scale-105 transition-transform group">
-        <Youtube className="w-6 h-6 text-[#006666] group-hover:text-red-600 transition-colors" />
-        <a 
-          href="https://www.youtube.com/@Fro-g-lock" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="text-lg font-bold hover:underline underline-offset-4"
-        >
-          my youtube channel
-        </a>
+      <footer className="mt-16 mb-12 flex flex-col items-center gap-6">
+        <div className="rustic-container px-8 py-4 rounded-sm flex items-center gap-4 hover:scale-105 transition-transform group">
+          <Youtube className="w-6 h-6 text-[#006666] group-hover:text-red-600 transition-colors" />
+          <a 
+            href="https://www.youtube.com/@Fro-g-lock" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-lg font-bold hover:underline underline-offset-4"
+          >
+            my youtube channel
+          </a>
+        </div>
+        
+        <div className="flex flex-col items-center gap-2 opacity-60 hover:opacity-100 transition-opacity">
+          <div className="text-[10px] font-bold uppercase tracking-widest text-center">
+            Original images from:
+          </div>
+          <a 
+            href="https://pjsekai.sega.jp/special/download.html" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 text-[11px] font-bold underline hover:text-[#006666]"
+          >
+            pjsekai.sega.jp/special/download.html
+            <ExternalLink className="w-3 h-3" />
+          </a>
+        </div>
       </footer>
     </div>
   );
