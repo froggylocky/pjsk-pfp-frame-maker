@@ -11,32 +11,67 @@
     <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        :root {
+            /* Default: Frog Mode Theme */
+            --bg-main: #3F3E3F;
+            --bg-container: #5A604B;
+            --bg-button: #525D37;
+            --bg-button-hover: #61685C;
+            --border-main: #45483F;
+            --accent: #525D37;
+            --text-main: #f0f0f0;
+            --glass-bg: rgba(82, 93, 55, 0.2);
+            --placeholder: #61685C;
+        }
+
+        [data-theme='original'] {
+            /* Miku Mode Theme */
+            --bg-main: #001a1a;
+            --bg-container: #004d4d;
+            --bg-button: #008080;
+            --bg-button-hover: #009999;
+            --border-main: #006666;
+            --accent: #4db6ac;
+            --text-main: #e0f2f1;
+            --glass-bg: rgba(0, 128, 128, 0.2);
+            --placeholder: #003333;
+        }
+
         body {
             font-family: 'Silkscreen', cursive, sans-serif;
-            background-color: #002b2b;
+            background-color: var(--bg-main);
             background-image: url('https://www.transparenttextures.com/patterns/dark-matter.png');
-            color: #004d4d;
+            color: var(--text-main);
             margin: 0;
             padding: 0;
+            transition: background-color 0.3s ease;
         }
 
         .rustic-container {
-            background-color: #b2dfdb;
-            border: 8px ridge #006666;
-            box-shadow: 10px 10px 0px rgba(0,0,0,0.5);
+            background-color: var(--bg-container);
+            border: 8px ridge var(--border-main);
+            box-shadow: 10px 10px 0px rgba(0,0,0,0.4);
+            color: var(--text-main);
+            transition: all 0.3s ease;
         }
 
         .rustic-glass {
-            background: rgba(0, 128, 128, 0.2);
-            border: 3px double #006666;
+            background: var(--glass-bg);
+            border: 3px double var(--border-main);
+            color: var(--text-main);
+            transition: all 0.3s ease;
         }
 
         .rustic-button {
-            background-color: #008080;
-            border: 4px outset #4db6ac;
+            background-color: var(--bg-button);
+            border: 4px outset var(--bg-button-hover);
             color: #ffffff;
-            text-shadow: 2px 2px #002b2b;
+            text-shadow: 2px 2px var(--bg-main);
             transition: all 0.1s;
+        }
+
+        .rustic-button:hover {
+            background-color: var(--bg-button-hover);
         }
 
         .rustic-button:active {
@@ -45,10 +80,11 @@
         }
 
         .rustic-button:disabled {
-            background-color: #5b7c7c;
-            border-color: #4a5f5f;
+            background-color: var(--border-main);
+            border-color: var(--bg-main);
             cursor: not-allowed;
             text-shadow: none;
+            opacity: 0.6;
         }
 
         canvas {
@@ -58,17 +94,17 @@
 
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 12px; }
-        ::-webkit-scrollbar-track { background: #b2dfdb; border-left: 1px solid #006666; }
-        ::-webkit-scrollbar-thumb { background: #006666; border: 2px solid #b2dfdb; }
+        ::-webkit-scrollbar-track { background: var(--border-main); border-left: 1px solid var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: var(--bg-button); border: 2px solid var(--border-main); }
 
         h1, h2 {
             text-decoration: underline;
             letter-spacing: 1px;
-            color: #003333;
+            color: #ffffff;
         }
 
         input[type="range"] {
-            accent-color: #008080;
+            accent-color: var(--accent);
         }
     </style>
 <script type="importmap">
