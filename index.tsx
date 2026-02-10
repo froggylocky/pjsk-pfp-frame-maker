@@ -64,6 +64,7 @@ const BackgroundAnimation = ({ theme }: { theme: 'rustic' | 'original' }) => {
       size: number;
       speed: number;
       rotation: number;
+      rotationSpeed: number;
       opacity: number;
       points: { x: number, y: number }[];
     }[] = [];
@@ -78,14 +79,30 @@ const BackgroundAnimation = ({ theme }: { theme: 'rustic' | 'original' }) => {
     };
 
     const createTriangle = (isInitial = false) => {
-      const size = Math.random() * 80 + 20;
+      const size = Math.random() * 100 + 30;
+      let x, y;
+      if (isInitial) {
+        x = Math.random() * w;
+        y = Math.random() * h;
+      } else {
+        // Randomly spawn on either the right edge or the bottom edge to create full diagonal sweep
+        if (Math.random() > 0.5) {
+          x = w + size;
+          y = Math.random() * (h + size);
+        } else {
+          x = Math.random() * (w + size);
+          y = h + size;
+        }
+      }
+      
       return {
-        x: isInitial ? Math.random() * w : w + size,
-        y: isInitial ? Math.random() * h : h + size,
+        x,
+        y,
         size,
-        speed: Math.random() * 1.5 + 0.5,
+        speed: Math.random() * 1.2 + 0.4,
         rotation: Math.random() * Math.PI * 2,
-        opacity: Math.random() * 0.15 + 0.05,
+        rotationSpeed: (Math.random() - 0.5) * 0.008,
+        opacity: Math.random() * 0.12 + 0.04,
         points: Array.from({ length: 3 }).map(() => ({
           x: (Math.random() - 0.5) * 2,
           y: (Math.random() - 0.5) * 2
@@ -95,7 +112,8 @@ const BackgroundAnimation = ({ theme }: { theme: 'rustic' | 'original' }) => {
 
     const init = () => {
       resize();
-      for (let i = 0; i < 30; i++) {
+      triangles.length = 0;
+      for (let i = 0; i < 45; i++) {
         triangles.push(createTriangle(true));
       }
     };
@@ -107,9 +125,9 @@ const BackgroundAnimation = ({ theme }: { theme: 'rustic' | 'original' }) => {
         // Move towards top-left
         t.x -= t.speed;
         t.y -= t.speed;
-        t.rotation += 0.005;
+        t.rotation += t.rotationSpeed;
 
-        // Reset if off screen
+        // Reset if off screen (passed top-left)
         if (t.x < -t.size || t.y < -t.size) {
           triangles[i] = createTriangle();
         }
@@ -134,7 +152,12 @@ const BackgroundAnimation = ({ theme }: { theme: 'rustic' | 'original' }) => {
       animationFrameId = requestAnimationFrame(draw);
     };
 
-    window.addEventListener('resize', resize);
+    window.addEventListener('resize', () => {
+        resize();
+        // Repopulate a bit if the window grows significantly
+        while (triangles.length < 45) triangles.push(createTriangle(true));
+    });
+    
     init();
     draw();
 
