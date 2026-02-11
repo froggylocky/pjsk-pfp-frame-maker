@@ -35,7 +35,8 @@ const FRAMES = [
   { id: 'len', name: 'Len Fan', url: 'https://u.cubeupload.com/froglock/framevirtualsinger3l.png', unit: 'Virtual Singer' },
   { id: 'luka', name: 'Luka Fan', url: 'https://u.cubeupload.com/froglock/framevirtualsinger4l.png', unit: 'Virtual Singer' },
   { id: 'meiko', name: 'Meiko Fan', url: 'https://u.cubeupload.com/froglock/framevirtualsinger5m.png', unit: 'Virtual Singer' },
-  { id: 'kaito', name: 'Kaito Fan', url: 'https://u.cubeupload.com/froglock/framevirtualsinger6k.png', unit: 'Virtual Singer' }
+  { id: 'kaito', name: 'Kaito Fan', url: 'https://u.cubeupload.com/froglock/framevirtualsinger6k.png', unit: 'Virtual Singer' },
+  { id: 'vs_sticks', name: 'VS Fan', url: 'https://u.cubeupload.com/froglock/framevirtualsingerch.png', unit: 'Virtual Singer' }
 ];
 
 const PRIMARY_PROXY = "https://images.weserv.nl/?url=";
@@ -470,7 +471,7 @@ const PJSKFrameMaker = () => {
       </div>
 
       {/* Logos moved to the very top and increased size */}
-      <div className="relative w-full h-[240px] mx-auto text-center mb-10 z-10"> {/* Changed h-[120px] to h-[240px] */}
+      <div className="relative w-full h-[240px] mx-auto text-center mb-10 z-10">
         <img
           src={mikuLogoSrc}
           alt="PJSK Frame Maker Miku Mode Logo"
