@@ -6,11 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PJSK Frame Maker</title>
     <link rel="icon" type="image/png" href="https://www.google.com/s2/favicons?domain=pjsekai.sega.jp&sz=64">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Preload font to start download immediately -->
+    <link rel="preload" href="https://files.catbox.moe/k3p4sf.ttf" as="font" type="font/ttf" crossorigin>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        @font-face {
+            font-family: 'PJSKFont';
+            src: url('https://files.catbox.moe/k3p4sf.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
         :root {
             /* Default: Miku Mode Theme */
             --bg-main: #001a1a;
@@ -38,7 +45,7 @@
         }
 
         body {
-            font-family: 'Silkscreen', cursive, sans-serif;
+            font-family: 'PJSKFont', sans-serif;
             background-color: var(--bg-main);
             background-image: url('https://www.transparenttextures.com/patterns/dark-matter.png');
             color: var(--text-main);
@@ -97,7 +104,7 @@
         ::-webkit-scrollbar-track { background: var(--border-main); border-left: 1px solid var(--bg-main); }
         ::-webkit-scrollbar-thumb { background: var(--bg-button); border: 2px solid var(--border-main); }
 
-        h1, h2 {
+        h1, h2, h3 {
             text-decoration: underline;
             letter-spacing: 1px;
             color: #ffffff;
@@ -105,6 +112,15 @@
 
         input[type="range"] {
             accent-color: var(--accent);
+        }
+
+        /* Ensure Tailwind utility font classes don't override the global font if used */
+        * {
+            font-family: inherit;
+        }
+        
+        button, input, select, textarea {
+            font-family: 'PJSKFont', sans-serif;
         }
     </style>
 <script type="importmap">
@@ -119,6 +135,7 @@
   }
 }
 </script>
+<link rel="stylesheet" href="/index.css">
 </head>
 <body>
     <div id="root"></div>

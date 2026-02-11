@@ -35,8 +35,7 @@ const FRAMES = [
   { id: 'len', name: 'Len Fan', url: 'https://u.cubeupload.com/froglock/framevirtualsinger3l.png', unit: 'Virtual Singer' },
   { id: 'luka', name: 'Luka Fan', url: 'https://u.cubeupload.com/froglock/framevirtualsinger4l.png', unit: 'Virtual Singer' },
   { id: 'meiko', name: 'Meiko Fan', url: 'https://u.cubeupload.com/froglock/framevirtualsinger5m.png', unit: 'Virtual Singer' },
-  { id: 'kaito', name: 'Kaito Fan', url: 'https://u.cubeupload.com/froglock/framevirtualsinger6k.png', unit: 'Virtual Singer' },
-  { id: 'vs_sticks', name: 'VS Fan', url: 'https://u.cubeupload.com/froglock/framevirtualsingerch.png', unit: 'Virtual Singer' }
+  { id: 'kaito', name: 'Kaito Fan', url: 'https://u.cubeupload.com/froglock/framevirtualsinger6k.png', unit: 'Virtual Singer' }
 ];
 
 const PRIMARY_PROXY = "https://images.weserv.nl/?url=";
@@ -85,7 +84,6 @@ const BackgroundAnimation = ({ theme }: { theme: 'rustic' | 'original' }) => {
         x = Math.random() * w;
         y = Math.random() * h;
       } else {
-        // Randomly spawn on either the right edge or the bottom edge to create full diagonal sweep
         if (Math.random() > 0.5) {
           x = w + size;
           y = Math.random() * (h + size);
@@ -103,7 +101,7 @@ const BackgroundAnimation = ({ theme }: { theme: 'rustic' | 'original' }) => {
         rotation: Math.random() * Math.PI * 2,
         rotationSpeed: (Math.random() - 0.5) * 0.008,
         opacity: Math.random() * 0.12 + 0.04,
-        points: Array.from({ length: 3 }).map(() => ({
+        points: (Array.from({ length: 3 }) as any[]).map(() => ({
           x: (Math.random() - 0.5) * 2,
           y: (Math.random() - 0.5) * 2
         }))
@@ -122,12 +120,10 @@ const BackgroundAnimation = ({ theme }: { theme: 'rustic' | 'original' }) => {
       ctx.clearRect(0, 0, w, h);
       
       triangles.forEach((t, i) => {
-        // Move towards top-left
         t.x -= t.speed;
         t.y -= t.speed;
         t.rotation += t.rotationSpeed;
 
-        // Reset if off screen (passed top-left)
         if (t.x < -t.size || t.y < -t.size) {
           triangles[i] = createTriangle();
         }
@@ -154,7 +150,6 @@ const BackgroundAnimation = ({ theme }: { theme: 'rustic' | 'original' }) => {
 
     window.addEventListener('resize', () => {
         resize();
-        // Repopulate a bit if the window grows significantly
         while (triangles.length < 45) triangles.push(createTriangle(true));
     });
     
@@ -170,11 +165,16 @@ const BackgroundAnimation = ({ theme }: { theme: 'rustic' | 'original' }) => {
   return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-[-1]" />;
 };
 
+// Raw URLs for the logos
+const RAW_MIKU_LOGO_URL = 'https://u.cubeupload.com/froglock/289logoPJSKpfpframemake.png';
+const RAW_FROG_LOGO_URL = 'https://u.cubeupload.com/froglock/logoPJSKpfpframemake.png';
+
 const PJSKFrameMaker = () => {
   const [theme, setTheme] = useState<'rustic' | 'original'>(() => {
     return (localStorage.getItem('pjsk-theme') as 'rustic' | 'original') || 'original';
   });
 
+  const [isFontLoaded, setIsFontLoaded] = useState(false);
   const [userImage, setUserImage] = useState<HTMLImageElement | null>(null);
   const [selectedFrame, setSelectedFrame] = useState(FRAMES[0]);
   const [frameImage, setFrameImage] = useState<HTMLImageElement | null>(null);
@@ -187,13 +187,21 @@ const PJSKFrameMaker = () => {
   const [isManualInput, setIsManualInput] = useState(false);
   const [freeMode, setFreeMode] = useState(false);
   const [autoCrop, setAutoCrop] = useState(true);
-  
+
   const [showCropModal, setShowCropModal] = useState(false);
   const [rawImage, setRawImage] = useState<HTMLImageElement | null>(null);
   const [cropOffset, setCropOffset] = useState({ x: 0, y: 0 });
   const [cropZoom, setCropZoom] = useState(1);
   const [isCropDragging, setIsCropDragging] = useState(false);
   const [cropDragStart, setCropDragStart] = useState({ x: 0, y: 0 });
+
+  // State for proxied logo URLs - now initialized directly
+  const [mikuLogoSrc] = useState(
+    `${PRIMARY_PROXY}${encodeURIComponent(RAW_MIKU_LOGO_URL)}`
+  );
+  const [frogLogoSrc] = useState(
+    `${PRIMARY_PROXY}${encodeURIComponent(RAW_FROG_LOGO_URL)}`
+  );
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -202,7 +210,18 @@ const PJSKFrameMaker = () => {
 
   const INNER_RADIUS = (CANVAS_SIZE / 2) - 37;
 
-  // Apply theme to body
+  // Handle global font preloading
+  useEffect(() => {
+    if ('fonts' in document) {
+      document.fonts.ready.then(() => {
+        setIsFontLoaded(true);
+      });
+    } else {
+      // Fallback for browsers that don't support Font Loading API
+      setIsFontLoaded(true);
+    }
+  }, []);
+
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('pjsk-theme', theme);
@@ -264,11 +283,7 @@ const PJSKFrameMaker = () => {
     return () => { isMounted = false; };
   }, [selectedFrame]);
 
-  useEffect(() => { drawCanvas(); }, [userImage, frameImage, zoom, offset, rotation, theme]);
-
-  useEffect(() => {
-    if ('fonts' in document) { document.fonts.ready.then(() => drawCanvas()); }
-  }, []);
+  useEffect(() => { drawCanvas(); }, [userImage, frameImage, zoom, offset, rotation, theme, isFontLoaded]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -368,7 +383,7 @@ const PJSKFrameMaker = () => {
       ctx.arc(CANVAS_SIZE / 2, CANVAS_SIZE / 2, INNER_RADIUS, 0, Math.PI * 2);
       ctx.fill();
       ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-main').trim() || '#f0f0f0';
-      ctx.font = '700 16px Silkscreen, cursive';
+      ctx.font = '700 16px PJSKFont, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('Upload Photo', CANVAS_SIZE / 2, CANVAS_SIZE / 2);
@@ -416,7 +431,6 @@ const PJSKFrameMaker = () => {
     }
   };
 
-  // Group frames by unit
   const groupedFrames = useMemo(() => {
     const groups: Record<string, typeof FRAMES> = {};
     FRAMES.forEach(frame => {
@@ -428,11 +442,23 @@ const PJSKFrameMaker = () => {
 
   const currentLimits = getLimits(zoom);
 
+  // Main initial loading screen
+  if (!isFontLoaded) {
+    return (
+      <div className="fixed inset-0 bg-[var(--bg-main)] flex flex-col items-center justify-center gap-6 z-[9999]">
+        <div className="text-4xl font-bold animate-pulse tracking-widest text-[var(--text-main)]">PJSK</div>
+        <div className="flex flex-col items-center gap-2">
+          <Loader2 className="w-12 h-12 animate-spin text-[var(--accent)]" />
+          <span className="text-xs font-bold opacity-60 uppercase tracking-[0.2em]">Loading Assets</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col items-center py-12 px-4 select-none relative overflow-hidden">
       <BackgroundAnimation theme={theme} />
       
-      {/* Theme Switcher */}
       <div className="fixed top-4 right-4 z-50">
         <button 
           onClick={() => setTheme(theme === 'rustic' ? 'original' : 'rustic')}
@@ -443,9 +469,18 @@ const PJSKFrameMaker = () => {
         </button>
       </div>
 
-      <div className="text-center mb-10 rustic-container px-12 py-6 rounded-sm relative z-10">
-        <h1 className="text-4xl font-bold mb-2">PJSK Frame Maker</h1>
-        <p className="text-lg opacity-80">Profile Picture Creator (400x400)</p>
+      {/* Logos moved to the very top and increased size */}
+      <div className="relative w-full h-[240px] mx-auto text-center mb-10 z-10"> {/* Changed h-[120px] to h-[240px] */}
+        <img
+          src={mikuLogoSrc}
+          alt="PJSK Frame Maker Miku Mode Logo"
+          className={`absolute inset-0 mx-auto h-full object-contain transition-opacity duration-500 ${theme === 'original' ? 'opacity-100' : 'opacity-0'}`}
+        />
+        <img
+          src={frogLogoSrc}
+          alt="PJSK Frame Maker Frog Mode Logo"
+          className={`absolute inset-0 mx-auto h-full object-contain transition-opacity duration-500 ${theme === 'rustic' ? 'opacity-100' : 'opacity-0'}`}
+        />
       </div>
 
       <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-12 items-start relative z-10">
@@ -488,7 +523,7 @@ const PJSKFrameMaker = () => {
               <div className="flex gap-1">
                 <button 
                   onClick={() => setFreeMode(!freeMode)} 
-                  className={`p-1.5 transition-colors border ${freeMode ? 'bg-[var(--accent)] text-white border-[var(--bg-button-hover)]' : 'opacity-60 hover:opacity-100 border-transparent'}`}
+                  className={`p-1.5 transition-colors border ${freeMode ? 'bg-yellow-500 text-black border-yellow-600' : 'opacity-60 hover:opacity-100 border-transparent'}`}
                   title={freeMode ? "Disable Free Mode" : "Enable Free Mode"}
                 >
                   {freeMode ? <Unlock className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
@@ -530,11 +565,8 @@ const PJSKFrameMaker = () => {
                     <span className="text-xs font-bold opacity-60">°</span>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-3">
-                    <RotateCw className="w-5 h-5 opacity-70" />
-                    <input type="range" min="0" max="360" step="1" value={rotation} onChange={(e) => setRotation(parseFloat(e.target.value))} className="w-full h-4 rounded-none appearance-none cursor-pointer" />
-                  </div>
-                )}
+                  <input type="range" min="0" max="360" step="1" value={rotation} onChange={(e) => setRotation(parseFloat(e.target.value))} className="w-full h-4 rounded-none appearance-none cursor-pointer" />
+                  )}
               </div>
 
               <div className="space-y-2">
@@ -612,13 +644,13 @@ const PJSKFrameMaker = () => {
           <div className="rustic-container p-6 h-[75vh] flex flex-col">
             <h2 className="text-xl font-bold border-b border-[var(--border-main)] pb-2 mb-2">3. Select Frame</h2>
             <div className="overflow-y-auto pr-3 flex-1 space-y-6">
-              {Object.entries(groupedFrames).map(([unitName, frames]) => (
+              {(Object.entries(groupedFrames) as [string, typeof FRAMES][]).map(([unitName, frames]) => (
                 <div key={unitName} className="space-y-3">
                   <div className="sticky top-0 z-10 bg-[var(--bg-container)] border-b-2 border-[var(--border-main)] py-1 mb-2">
                     <h3 className="text-[10px] font-bold uppercase tracking-wider opacity-60">{unitName}</h3>
                   </div>
                   <div className="grid grid-cols-1 gap-3">
-                    {frames.map((frame) => (
+                    {(frames as any[]).map((frame) => (
                       <button 
                         key={frame.id} 
                         onClick={() => !isFrameLoading && setSelectedFrame(frame)} 
